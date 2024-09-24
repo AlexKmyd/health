@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  health_nginx:
+    image: nginx:latest
+    volumes:
+      - ./docker/nginx:/etc/nginx/conf.d
+      - ./:/var/www/html
+    ports:
+      - '80:80'
+    extra_hosts:
+      - 'server.loc:127.0.0.1'
+    networks:
+      - nginx
+
+  health_php82:
+    build: ./docker/php
+    volumes:
+      - ./:/var/www/html
+    extra_hosts:
+      - 'server.loc:172.17.0.1'
+    networks:
+      - nginx
+      - db
+
+  health_mysql:
+    build: ./docker/mysql
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+    networks:
+      - db
+
+networks:
+  nginx:
+    driver: bridge
+  db:
